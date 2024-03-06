@@ -1,6 +1,6 @@
 import pyodbc
 
-server = 'DESKTOP-F9RFMJE\\SQLEXPRESS'
+server = '{your_server_name}'
 database = 'master'  
 
 conn_str = f'DRIVER={{SQL Server}};SERVER={server};DATABASE={database};Trusted_Connection=yes;'
