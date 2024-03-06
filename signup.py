@@ -47,13 +47,31 @@ def siginfunc(username_entry, password_entry):
         print(f"Attempting to sign in with username: '{username_in}' and password: '{password_in}'")
 
         cursor.execute("""SELECT * FROM [User Data] WHERE username = ? AND passwordcol = ?""", (username_in, password_in))
-        user_data = cursor.fetchone()
-        
-        if user_data:
+
+        if cursor.fetchone():
             messagebox.showinfo("Success", "Login successful")
-            print(f"User found: {user_data}")
         else:
             messagebox.showerror("Error", "Username or password is incorrect")
+
+        conn.close()
+
+def reset_passwordfunc(email, password):
+    email_in = email.get().strip()
+    new_password_in = password.get().strip()
+
+    if len(email_in) == 0 or len(new_password_in) == 0:
+        messagebox.showerror("Error", "Incomplete input")
+    else:
+        conn = pyodbc.connect(conn_str, autocommit=True)
+        cursor = conn.cursor()
+
+        print(f"Attempting to retrieve email: '{email_in}'")
+        cursor.execute("SELECT * FROM [User Data] WHERE email = ?", (email_in))
+        if cursor.fetchone():
+            cursor.execute("UPDATE [User Data] SET passwordcol = ? WHERE email = ?", (new_password_in, email_in))
+            messagebox.showinfo("Success", "Password changed")
+        else:
+            messagebox.showerror("Error", "No email address in the database")
 
         conn.close()
 
@@ -74,7 +92,7 @@ def reset_password():
     reset_password_entry = Entry(password_reset_window)
     reset_password_entry.pack()
 
-    reset_password_button = Button(password_reset_window, text="Reset password")
+    reset_password_button = Button(password_reset_window, text="Reset password", command=lambda: reset_passwordfunc(reset_email_entry, reset_password_entry))
     reset_password_button.pack(pady=10)
 
     password_reset_window.mainloop()
