@@ -1,6 +1,18 @@
 from tkinter import *
 from tkinter import messagebox
 from sqlserver import *
+import smtplib
+import random
+from tkinter import simpledialog
+
+def send_code(email, code):
+    sender_email = "cipulina.devson@gmail.com"
+    sender_password = "qwspqdqexoovdobm"
+    receiver_email = email 
+    message = f"From: {sender_email}\nTo: {receiver_email}\nSubject: Verification Code\n\nYour verification code is: {code}"
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, receiver_email, message)
 
 def signup():
     username_in = username.get()
@@ -65,8 +77,15 @@ def reset_passwordfunc(email, password):
 
         cursor.execute("SELECT * FROM [User Data] WHERE email = ?", (email_in))
         if cursor.fetchone():
-            cursor.execute("UPDATE [User Data] SET passwordcol = ? WHERE email = ?", (new_password_in, email_in))
-            messagebox.showinfo("Success", "Password changed")
+            verification_code = str(random.randint(1000, 9999))
+            send_code(email_in, verification_code)
+
+            user_code = simpledialog.askstring("Verification", "Enter a verification code sent to your email address:")
+            if user_code == verification_code:
+                cursor.execute("UPDATE [User Data] SET passwordcol = ? WHERE email = ?", (new_password_in, email_in))
+                messagebox.showinfo("Success", "Password changed")
+            else:
+                messagebox.showerror("Error", "Incorrect verification code")
         else:
             messagebox.showerror("Error", "No email address in the database")
 
