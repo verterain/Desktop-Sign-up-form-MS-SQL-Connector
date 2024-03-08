@@ -44,8 +44,6 @@ def siginfunc(username_entry, password_entry):
         conn = pyodbc.connect(conn_str, autocommit=True)
         cursor = conn.cursor()
 
-        print(f"Attempting to sign in with username: '{username_in}' and password: '{password_in}'")
-
         cursor.execute("""SELECT * FROM [User Data] WHERE username = ? AND passwordcol = ?""", (username_in, password_in))
 
         if cursor.fetchone():
@@ -65,7 +63,6 @@ def reset_passwordfunc(email, password):
         conn = pyodbc.connect(conn_str, autocommit=True)
         cursor = conn.cursor()
 
-        print(f"Attempting to retrieve email: '{email_in}'")
         cursor.execute("SELECT * FROM [User Data] WHERE email = ?", (email_in))
         if cursor.fetchone():
             cursor.execute("UPDATE [User Data] SET passwordcol = ? WHERE email = ?", (new_password_in, email_in))
